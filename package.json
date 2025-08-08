@@ -1,0 +1,20 @@
+{
+  "name": "receive-data-machine",
+  "version": "1.0.0",
+  "description": "Servidor Node.js simples para receber dados de uma máquina via HTTP, TCP e UDP sem autenticação.",
+  "main": "server.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "extract": "node extract-protocol.js \"8 electrode-Detect data network transmission protocolsV2.0(1).pdf\" > protocol.txt"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
