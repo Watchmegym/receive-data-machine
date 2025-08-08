@@ -7,9 +7,12 @@ const dgram = require('dgram');
 const express = require('express');
 
 // Configurações (sem necessidade de .env). Ajuste as portas se necessário.
-const HTTP_PORT = Number(process.env.HTTP_PORT || 3000);
+// Em ambiente de deploy (Render/Heroku), PORT é fornecida pela plataforma.
+const HTTP_PORT = Number(process.env.PORT || process.env.HTTP_PORT || 3000);
 const TCP_PORT = Number(process.env.TCP_PORT || 4000);
 const UDP_PORT = Number(process.env.UDP_PORT || 5000);
+const ENABLE_TCP = String(process.env.ENABLE_TCP || 'false').toLowerCase() === 'true';
+const ENABLE_UDP = String(process.env.ENABLE_UDP || 'false').toLowerCase() === 'true';
 const LOG_FILE = process.env.LOG_FILE || path.join(__dirname, 'received.log');
 
 function timestamp() {
@@ -56,6 +59,7 @@ app.post('/data', express.raw({ type: '*/*', limit: '50mb' }), (req, res) => {
 // Conforme protocolo: POST /upload com JSON contendo campos do anexo
 app.post('/upload', (req, res) => {
   try {
+    console.log(req.body);
     const body = req.body && typeof req.body === 'object' ? req.body : {};
     const jsonStr = JSON.stringify(body);
     logReceived('HTTP/UPLOAD', req.ip || '', Buffer.from(jsonStr));
@@ -86,54 +90,59 @@ const httpServer = app.listen(HTTP_PORT, '0.0.0.0', () => {
   console.log(`[${timestamp()}] HTTP ouvindo em 0.0.0.0:${HTTP_PORT}`);
 });
 
-// TCP
-const tcpServer = net.createServer((socket) => {
-  const peer = `${socket.remoteAddress || ''}:${socket.remotePort || ''}`;
-  console.log(`[${timestamp()}] TCP conexão de ${peer}`);
+// TCP (desabilitado por padrão em plataformas que não expõem portas extras)
+let tcpServer;
+if (ENABLE_TCP) {
+  tcpServer = net.createServer((socket) => {
+    const peer = `${socket.remoteAddress || ''}:${socket.remotePort || ''}`;
+    console.log(`[${timestamp()}] TCP conexão de ${peer}`);
 
-  socket.on('data', (chunk) => {
-    logReceived('TCP', peer, chunk);
+    socket.on('data', (chunk) => {
+      logReceived('TCP', peer, chunk);
+    });
+
+    socket.on('error', (err) => {
+      console.error(`[${timestamp()}] TCP erro de ${peer}: ${err.message}`);
+    });
+
+    socket.on('close', () => {
+      console.log(`[${timestamp()}] TCP conexão encerrada ${peer}`);
+    });
   });
 
-  socket.on('error', (err) => {
-    console.error(`[${timestamp()}] TCP erro de ${peer}: ${err.message}`);
+  tcpServer.listen(TCP_PORT, '0.0.0.0', () => {
+    console.log(`[${timestamp()}] TCP ouvindo em 0.0.0.0:${TCP_PORT}`);
+  });
+}
+
+// UDP (desabilitado por padrão em plataformas que não expõem portas extras)
+let udpServer;
+if (ENABLE_UDP) {
+  udpServer = dgram.createSocket('udp4');
+
+  udpServer.on('message', (msg, rinfo) => {
+    const info = `${rinfo.address}:${rinfo.port}`;
+    logReceived('UDP', info, msg);
   });
 
-  socket.on('close', () => {
-    console.log(`[${timestamp()}] TCP conexão encerrada ${peer}`);
+  udpServer.on('listening', () => {
+    const addr = udpServer.address();
+    console.log(`[${timestamp()}] UDP ouvindo em ${addr.address}:${addr.port}`);
   });
-});
 
-tcpServer.listen(TCP_PORT, '0.0.0.0', () => {
-  console.log(`[${timestamp()}] TCP ouvindo em 0.0.0.0:${TCP_PORT}`);
-});
+  udpServer.on('error', (err) => {
+    console.error(`[${timestamp()}] UDP erro: ${err.message}`);
+  });
 
-// UDP
-const udpServer = dgram.createSocket('udp4');
-
-udpServer.on('message', (msg, rinfo) => {
-  const info = `${rinfo.address}:${rinfo.port}`;
-  logReceived('UDP', info, msg);
-});
-
-udpServer.on('listening', () => {
-  const addr = udpServer.address();
-  console.log(`[${timestamp()}] UDP ouvindo em ${addr.address}:${addr.port}`);
-});
-
-udpServer.on('error', (err) => {
-  console.error(`[${timestamp()}] UDP erro: ${err.message}`);
-});
-
-udpServer.bind(UDP_PORT, '0.0.0.0');
+  udpServer.bind(UDP_PORT, '0.0.0.0');
+}
 
 // Encerramento gracioso
 function shutdown() {
   console.log(`[${timestamp()}] Encerrando...`);
   httpServer.close(() => console.log(`[${timestamp()}] HTTP fechado`));
-  tcpServer.close(() => console.log(`[${timestamp()}] TCP fechado`));
-  try { udpServer.close(); console.log(`[${timestamp()}] UDP fechado`); } catch (_) {}
-  // Aguarda um pouco para fechar arquivos de log
+  if (tcpServer) tcpServer.close(() => console.log(`[${timestamp()}] TCP fechado`));
+  try { if (udpServer) { udpServer.close(); console.log(`[${timestamp()}] UDP fechado`); } } catch (_) {}
   setTimeout(() => process.exit(0), 500);
 }
 
