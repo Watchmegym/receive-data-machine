@@ -56,7 +56,6 @@ app.post('/data', express.raw({ type: '*/*', limit: '50mb' }), (req, res) => {
 // Conforme protocolo: POST /upload com JSON contendo campos do anexo
 app.post('/upload', (req, res) => {
   try {
-    console.log(req.body);
     const body = req.body && typeof req.body === 'object' ? req.body : {};
     const jsonStr = JSON.stringify(body);
     logReceived('HTTP/UPLOAD', req.ip || '', Buffer.from(jsonStr));
@@ -66,6 +65,11 @@ app.post('/upload', (req, res) => {
     console.error(`[${timestamp()}] Erro /upload: ${err.message}`);
     res.status(200).json({ recode: 5000, remsg: 'parsing error' });
   }
+});
+
+// Rota de teste/saúde do serviço
+app.get('/test', (req, res) => {
+  res.status(200).json({ status: 'ok', time: timestamp() });
 });
 
 app.get('/', (req, res) => {
