@@ -8,7 +8,7 @@
         address: '',
         userID: '20250903152354737',
         loginType: '0',
-        measureTime: '2025-09-03 15:23:54',
+        measureTime: '2025-09-03 15:23:54', // traduzir ptbr o que é measureTime : data e hora da medição
         bmi_s: '1',
         bmi: '23.8',
         height: '175.0',
@@ -83,7 +83,7 @@
         vfal_n: '1.0 - 9.0',
         waterICW_n: '33.7 - 41.1',
         waterICW_s: '0',
-        measureTime: '2025-09-03 15:23:54',
+        measureTime: '2025-09-03 15:23:54', // traduzir ptbr o que é measureTime : data e hora da medição
         fatRightLeg: '1',
         jogging: '255',
         aerobic: '255',

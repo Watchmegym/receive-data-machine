@@ -11,6 +11,7 @@
     "extract": "node extract-protocol.js \"8 electrode-Detect data network transmission protocolsV2.0(1).pdf\" > protocol.txt"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "express": "^4.19.2",
     "pdf-parse": "^1.1.1"
   },
