@@ -418,12 +418,14 @@ app.post('/upload', async (req, res) => {
     const { deviceModel, unitName, unitNo, macAddr, deviceNo, datas } = req.body;
     
     if (!datas || !Array.isArray(datas) || datas.length === 0) {
+      console.log('❌ Erro: No data provided ou datas não é array');
       return res.status(400).json({ recode: 4000, remsg: 'No data provided' });
     }
     
     const deviceInfo = { deviceModel, unitName, unitNo, macAddr, deviceNo };
     
     for (const data of datas) {
+
       if (!data.userID || !data.measureTime) {
         console.log('⚠️ Dados incompletos - userID ou measureTime ausente');
         continue;
@@ -431,7 +433,6 @@ app.post('/upload', async (req, res) => {
       
       const mappedData = mapDataToTable(data, deviceInfo);
       
-      // Verificar se já existe registro com mesmo userID e measureTime
       const { data: existingRecord, error: selectError } = await supabase
         .from('balanca_data')
         .select('id')
@@ -440,28 +441,37 @@ app.post('/upload', async (req, res) => {
         .single();
       
       if (selectError && selectError.code !== 'PGRST116') {
+        console.log('❌ Erro na consulta:', selectError);
         throw selectError;
       }
       
       if (existingRecord) {
         // UPDATE - registro existe, atualizar
+        console.log('🔄 Fazendo UPDATE...');
         const { error: updateError } = await supabase
           .from('balanca_data')
           .update(mappedData)
           .eq('id', existingRecord.id);
         
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.log('❌ Erro no UPDATE:', updateError);
+          throw updateError;
+        }
         
         console.log(`✅ Registro atualizado - ID: ${existingRecord.id}, UserID: ${data.userID}, MeasureTime: ${data.measureTime}`);
       } else {
         // INSERT - registro não existe, criar novo
+        console.log('➕ Fazendo INSERT...');
         const { data: newRecord, error: insertError } = await supabase
           .from('balanca_data')
           .insert(mappedData)
           .select('id')
           .single();
         
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.log('❌ Erro no INSERT:', insertError);
+          throw insertError;
+        }
         
         console.log(`✅ Novo registro criado - ID: ${newRecord.id}, UserID: ${data.userID}, MeasureTime: ${data.measureTime}`);
       }
@@ -470,6 +480,7 @@ app.post('/upload', async (req, res) => {
     res.status(200).json({ recode: 2000, remsg: 'success' });
   } catch (error) {
     console.error('❌ Erro no processamento:', error.message);
+    console.error('❌ Stack trace:', error.stack);
     res.status(500).json({ recode: 5000, remsg: 'processing error' });
   }
 });
