@@ -297,23 +297,180 @@ app.get('/test', (req, res) => {
   `);
 });
 
+// Função para mapear dados do JSON para colunas da tabela
+function mapDataToTable(data, deviceInfo) {
+  const mapped = {};
+  
+  // Campos do dispositivo
+  if (deviceInfo.deviceModel) mapped.device_model = deviceInfo.deviceModel;
+  if (deviceInfo.unitName) mapped.unit_name = deviceInfo.unitName;
+  if (deviceInfo.unitNo) mapped.unit_no = deviceInfo.unitNo;
+  if (deviceInfo.macAddr) mapped.mac_addr = deviceInfo.macAddr;
+  if (deviceInfo.deviceNo) mapped.device_no = deviceInfo.deviceNo;
+  
+  // Campos do usuário
+  if (data.name) mapped.name = data.name;
+  if (data.userID) mapped.user_id = data.userID;
+  if (data.loginType) mapped.login_type = data.loginType;
+  if (data.measureTime) mapped.measure_time = data.measureTime;
+  if (data.address) mapped.address = data.address;
+  if (data.birthday) mapped.birthday = data.birthday;
+  if (data.age) mapped.age = parseInt(data.age);
+  if (data.sex) mapped.sex = parseInt(data.sex);
+  if (data.recordNo) mapped.record_no = data.recordNo;
+  
+  // Dados básicos
+  if (data.bmiType) mapped.bmi_type = data.bmiType;
+  if (data.bmi) mapped.bmi = parseFloat(data.bmi);
+  if (data.bmi_s) mapped.bmi_s = parseInt(data.bmi_s);
+  if (data.bmi_n) mapped.bmi_n = data.bmi_n;
+  if (data.height) mapped.height = parseFloat(data.height);
+  if (data.weight) mapped.weight = parseFloat(data.weight);
+  if (data.weight_n) mapped.weight_n = data.weight_n;
+  if (data.weight_s) mapped.weight_s = parseInt(data.weight_s);
+  
+  // Dados detalhados
+  if (data.waterECW) mapped.water_ecw = parseFloat(data.waterECW);
+  if (data.waterECW_n) mapped.water_ecw_n = data.waterECW_n;
+  if (data.waterECW_s) mapped.water_ecw_s = parseInt(data.waterECW_s);
+  if (data.waterICW) mapped.water_icw = parseFloat(data.waterICW);
+  if (data.waterICW_n) mapped.water_icw_n = data.waterICW_n;
+  if (data.waterICW_s) mapped.water_icw_s = parseInt(data.waterICW_s);
+  if (data.waterRate) mapped.water_rate = parseFloat(data.waterRate);
+  if (data.waterRate_n) mapped.water_rate_n = data.waterRate_n;
+  if (data.waterRate_s) mapped.water_rate_s = parseInt(data.waterRate_s);
+  
+  if (data.protein) mapped.protein = parseFloat(data.protein);
+  if (data.protein_n) mapped.protein_n = data.protein_n;
+  if (data.protein_s) mapped.protein_s = parseInt(data.protein_s);
+  
+  if (data.bone) mapped.bone = parseFloat(data.bone);
+  if (data.bone_n) mapped.bone_n = data.bone_n;
+  if (data.bone_s) mapped.bone_s = parseInt(data.bone_s);
+  
+  if (data.bodyShape) mapped.body_shape = data.bodyShape;
+  if (data.bodyScore) mapped.body_score = parseInt(data.bodyScore);
+  if (data.bodyAge) mapped.body_age = parseInt(data.bodyAge);
+  
+  if (data.fatFree) mapped.fat_free = parseFloat(data.fatFree);
+  if (data.fatFree_n) mapped.fat_free_n = data.fatFree_n;
+  if (data.fatFree_s) mapped.fat_free_s = parseInt(data.fatFree_s);
+  
+  if (data.fat) mapped.fat = parseFloat(data.fat);
+  if (data.fatRate) mapped.fat_rate = parseFloat(data.fatRate);
+  if (data.fatRate_n) mapped.fat_rate_n = data.fatRate_n;
+  if (data.fatRate_s) mapped.fat_rate_s = parseInt(data.fatRate_s);
+  
+  if (data.fatLeftLeg) mapped.fat_left_leg = parseFloat(data.fatLeftLeg);
+  if (data.fatRightLeg) mapped.fat_right_leg = parseFloat(data.fatRightLeg);
+  if (data.fatLeftArm) mapped.fat_left_arm = parseFloat(data.fatLeftArm);
+  if (data.fatRightArm) mapped.fat_right_arm = parseFloat(data.fatRightArm);
+  if (data.fatTrunk) mapped.fat_trunk = parseFloat(data.fatTrunk);
+  
+  if (data.muscleRate) mapped.muscle_rate = parseFloat(data.muscleRate);
+  if (data.muscleRate_n) mapped.muscle_rate_n = data.muscleRate_n;
+  if (data.muscleRate_s) mapped.muscle_rate_s = parseInt(data.muscleRate_s);
+  
+  if (data.muscleLeftLeg) mapped.muscle_left_leg = parseFloat(data.muscleLeftLeg);
+  if (data.muscleRightLeg) mapped.muscle_right_leg = parseFloat(data.muscleRightLeg);
+  if (data.muscleLeftArm) mapped.muscle_left_arm = parseFloat(data.muscleLeftArm);
+  if (data.muscleRightArm) mapped.muscle_right_arm = parseFloat(data.muscleRightArm);
+  if (data.muscleTrunk) mapped.muscle_trunk = parseFloat(data.muscleTrunk);
+  
+  if (data.skeletalMuscle) mapped.skeletal_muscle = parseFloat(data.skeletalMuscle);
+  
+  if (data.mineral) mapped.mineral = parseFloat(data.mineral);
+  if (data.mineral_n) mapped.mineral_n = data.mineral_n;
+  if (data.mineral_s) mapped.mineral_s = parseInt(data.mineral_s);
+  
+  if (data.bmr) mapped.bmr = parseInt(data.bmr);
+  if (data.bmr_n) mapped.bmr_n = data.bmr_n;
+  if (data.bmr_s) mapped.bmr_s = parseInt(data.bmr_s);
+  
+  if (data.dci) mapped.dci = parseInt(data.dci);
+  
+  if (data.vfal) mapped.vfal = parseInt(data.vfal);
+  if (data.vfal_n) mapped.vfal_n = data.vfal_n;
+  if (data.vfal_s) mapped.vfal_s = parseInt(data.vfal_s);
+  
+  if (data.fatSubCutRate) mapped.fat_sub_cut_rate = parseFloat(data.fatSubCutRate);
+  if (data.fatSubCutRate_n) mapped.fat_sub_cut_rate_n = data.fatSubCutRate_n;
+  if (data.fatSubCutRate_s) mapped.fat_sub_cut_rate_s = parseInt(data.fatSubCutRate_s);
+  
+  // Ajustes
+  if (data.weAdjus) mapped.we_adjus = parseFloat(data.weAdjus);
+  if (data.muAdjus) mapped.mu_adjus = parseFloat(data.muAdjus);
+  if (data.faAdjus) mapped.fa_adjus = parseFloat(data.faAdjus);
+  
+  // Atividades
+  if (data.swim) mapped.swim = parseInt(data.swim);
+  if (data.walking) mapped.walking = parseInt(data.walking);
+  if (data.jogging) mapped.jogging = parseInt(data.jogging);
+  if (data.aerobic) mapped.aerobic = parseInt(data.aerobic);
+  
+  return mapped;
+}
+
 app.post('/upload', async (req, res) => {
-  console.log(req.body);
+  console.log('📥 Dados recebidos:', JSON.stringify(req.body, null, 2));
   
   try {
-    // Teste de conexão com Supabase
-    const { data, error } = await supabase
-      .from('balanca_data')
-      .select('id')
-      .limit(1);
+    const { deviceModel, unitName, unitNo, macAddr, deviceNo, datas } = req.body;
     
-    if (error) throw error;
+    if (!datas || !Array.isArray(datas) || datas.length === 0) {
+      return res.status(400).json({ recode: 4000, remsg: 'No data provided' });
+    }
     
-    console.log('✅ Conexão com Supabase estabelecida!');
+    const deviceInfo = { deviceModel, unitName, unitNo, macAddr, deviceNo };
+    
+    for (const data of datas) {
+      if (!data.userID || !data.measureTime) {
+        console.log('⚠️ Dados incompletos - userID ou measureTime ausente');
+        continue;
+      }
+      
+      const mappedData = mapDataToTable(data, deviceInfo);
+      
+      // Verificar se já existe registro com mesmo userID e measureTime
+      const { data: existingRecord, error: selectError } = await supabase
+        .from('balanca_data')
+        .select('id')
+        .eq('user_id', data.userID)
+        .eq('measure_time', data.measureTime)
+        .single();
+      
+      if (selectError && selectError.code !== 'PGRST116') {
+        throw selectError;
+      }
+      
+      if (existingRecord) {
+        // UPDATE - registro existe, atualizar
+        const { error: updateError } = await supabase
+          .from('balanca_data')
+          .update(mappedData)
+          .eq('id', existingRecord.id);
+        
+        if (updateError) throw updateError;
+        
+        console.log(`✅ Registro atualizado - ID: ${existingRecord.id}, UserID: ${data.userID}, MeasureTime: ${data.measureTime}`);
+      } else {
+        // INSERT - registro não existe, criar novo
+        const { data: newRecord, error: insertError } = await supabase
+          .from('balanca_data')
+          .insert(mappedData)
+          .select('id')
+          .single();
+        
+        if (insertError) throw insertError;
+        
+        console.log(`✅ Novo registro criado - ID: ${newRecord.id}, UserID: ${data.userID}, MeasureTime: ${data.measureTime}`);
+      }
+    }
+    
     res.status(200).json({ recode: 2000, remsg: 'success' });
   } catch (error) {
-    console.error('❌ Erro na conexão com Supabase:', error.message);
-    res.status(500).json({ recode: 5000, remsg: 'database error' });
+    console.error('❌ Erro no processamento:', error.message);
+    res.status(500).json({ recode: 5000, remsg: 'processing error' });
   }
 });
 
